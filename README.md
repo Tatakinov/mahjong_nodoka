@@ -23,7 +23,7 @@ Result: 向聴数,有効牌,捨て牌
 Argument0: shanten
 Argument1: 5m6m8m8m9m9m1p3p5p7p8p4s4s5s
 Argument2: 0
-Argument2: 5m6m8m8m9m9m1p3p5p7p8p4s4s5s
+Argument3: 5m6m8m8m9m9m1p3p5p7p8p4s4s5s
 
 Result: 3,5p5s3p1p8p6m9m7m9p6p4m2p4s4p6s3s8m5m7p,9m6m8p4s1p5p3p5s8m7p5m
 ```
