@@ -249,52 +249,64 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
                     has_block = true;
                     remain[i]--;
                     hand[i] -= 2;
-                    if (janto) {
-                        data.valid[i]++;
-                    }
+                    data.valid[i]++;
                     int bak = info_block.index_first;
                     info_block.index_first = i + 1;
                     analyze4mentsu(result, data, hand, remain, mentsu, (janto) ? (toitsu + 1) : (toitsu), tatsu, info_mentsu, info_block, (janto) ? (janto) : (i));
                     info_block.index_first = bak;
-                    if (janto) {
-                        data.valid[i]--;
-                    }
+                    data.valid[i]--;
                     hand[i] += 2;
                     remain[i]++;
                 }
             }
         }
-        // ターツ
+        // ターツ(0-1-1-0)
         for (int i = info_block.index_second; i <= S9; i++) {
-            int index = -1;
-            int count = 0;
-            for (int j = 0; j < 3; j++) {
-                count += !!hand[i + j];
-                if (!hand[i + j]) {
-                    index = i + j;
-                }
-            }
-            //6block以上出来る場合は捨て牌扱いにする
-            if (count == 2 && remain[index]) {
+            bool under = remain[i], over = remain[i + 3];
+            if (hand[i + 1] && hand[i + 2] && (under || over)) {
                 has_block = true;
-                remain[index]--;
-                for (int j = 0; j < 3; j++) {
-                    if (i + j != index) {
-                        hand[i + j]--;
-                    }
+                if (under) {
+                    data.valid[i]++;
+                    remain[i]--;
                 }
-                data.valid[index]++;
+                if (over) {
+                    data.valid[i + 3]++;
+                    remain[i + 3]--;
+                }
+                hand[i + 1]--;
+                hand[i + 2]--;
                 int bak = info_block.index_second;
                 info_block.index_second = i + 1;
                 analyze4mentsu(result, data, hand, remain, mentsu, toitsu, tatsu + 1, info_mentsu, info_block, janto);
                 info_block.index_second = bak;
-                data.valid[index]--;
-                for (int j = 0; j < 3; j++) {
-                    if (i + j != index) {
-                        hand[i + j]++;
-                    }
+                hand[i + 1]++;
+                hand[i + 2]++;
+                if (under) {
+                    remain[i]--;
+                    data.valid[i]++;
                 }
-                remain[index]++;
+                if (over) {
+                    remain[i + 3]--;
+                    data.valid[i + 3]++;
+                }
+            }
+        }
+        // ターツ(1-0-1)
+        for (int i = info_block.index_second; i <= S9; i++) {
+            if (hand[i] && remain[i + 1] && hand[i + 2]) {
+                has_block = true;
+                data.valid[i + 1]++;
+                remain[i + 1]--;
+                hand[i]--;
+                hand[i + 2]--;
+                int bak = info_block.index_second;
+                info_block.index_second = i + 1;
+                analyze4mentsu(result, data, hand, remain, mentsu, toitsu, tatsu + 1, info_mentsu, info_block, janto);
+                info_block.index_second = bak;
+                hand[i]++;
+                hand[i + 2]++;
+                remain[i + 1]++;
+                data.valid[i + 1]--;
             }
         }
     }
