@@ -238,60 +238,64 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
         return;
     }
     bool has_block = false;
-    // 対子
-    for (int i = info_block.index_first; i <= Z7; i++) {
-        //6block以上出来る場合は捨て牌扱いにする
-        if (hand[i] >= 2 && remain[i] &&
-                mentsu + toitsu + tatsu + !!janto < kThreshold) {
-            has_block = true;
-            remain[i]--;
-            hand[i] -= 2;
-            if (janto) {
-                data.valid[i]++;
-            }
-            int bak = info_block.index_first;
-            info_block.index_first = i + 1;
-            analyze4mentsu(result, data, hand, remain, mentsu, (janto) ? (toitsu + 1) : (toitsu), tatsu, info_mentsu, info_block, (janto) ? (janto) : (i));
-            info_block.index_first = bak;
-            if (janto) {
-                data.valid[i]--;
-            }
-            hand[i] += 2;
-            remain[i]++;
-        }
-    }
-    // ターツ
-    for (int i = info_block.index_second; i <= S9; i++) {
-        int index = -1;
-        int count = 0;
-        for (int j = 0; j < 3; j++) {
-            count += !!hand[i + j];
-            if (!hand[i + j]) {
-                index = i + j;
-            }
-        }
-        //6block以上出来る場合は捨て牌扱いにする
-        if (count == 2 && remain[index] &&
-                mentsu + toitsu + tatsu + !!janto < kThreshold) {
-            has_block = true;
-            remain[index]--;
-            for (int j = 0; j < 3; j++) {
-                if (i + j != index) {
-                    hand[i + j]--;
+    //6block以上出来る場合は捨て牌扱いにする
+    if (mentsu + toitsu + tatsu + !!janto < kThreshold) {
+        // 雀頭なしで対子が作れる==雀頭が作れる==すでに探索済み
+        // なのでその場合は無視
+        if (janto) {
+            // 対子
+            for (int i = info_block.index_first; i <= Z7; i++) {
+                if (hand[i] >= 2 && remain[i]) {
+                    has_block = true;
+                    remain[i]--;
+                    hand[i] -= 2;
+                    if (janto) {
+                        data.valid[i]++;
+                    }
+                    int bak = info_block.index_first;
+                    info_block.index_first = i + 1;
+                    analyze4mentsu(result, data, hand, remain, mentsu, (janto) ? (toitsu + 1) : (toitsu), tatsu, info_mentsu, info_block, (janto) ? (janto) : (i));
+                    info_block.index_first = bak;
+                    if (janto) {
+                        data.valid[i]--;
+                    }
+                    hand[i] += 2;
+                    remain[i]++;
                 }
             }
-            data.valid[index]++;
-            int bak = info_block.index_second;
-            info_block.index_second = i + 1;
-            analyze4mentsu(result, data, hand, remain, mentsu, toitsu, tatsu + 1, info_mentsu, info_block, janto);
-            info_block.index_second = bak;
-            data.valid[index]--;
+        }
+        // ターツ
+        for (int i = info_block.index_second; i <= S9; i++) {
+            int index = -1;
+            int count = 0;
             for (int j = 0; j < 3; j++) {
-                if (i + j != index) {
-                    hand[i + j]++;
+                count += !!hand[i + j];
+                if (!hand[i + j]) {
+                    index = i + j;
                 }
             }
-            remain[index]++;
+            //6block以上出来る場合は捨て牌扱いにする
+            if (count == 2 && remain[index]) {
+                has_block = true;
+                remain[index]--;
+                for (int j = 0; j < 3; j++) {
+                    if (i + j != index) {
+                        hand[i + j]--;
+                    }
+                }
+                data.valid[index]++;
+                int bak = info_block.index_second;
+                info_block.index_second = i + 1;
+                analyze4mentsu(result, data, hand, remain, mentsu, toitsu, tatsu + 1, info_mentsu, info_block, janto);
+                info_block.index_second = bak;
+                data.valid[index]--;
+                for (int j = 0; j < 3; j++) {
+                    if (i + j != index) {
+                        hand[i + j]++;
+                    }
+                }
+                remain[index]++;
+            }
         }
     }
     if (has_block) {
@@ -316,7 +320,13 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
     }
     else {
         // 残りの牌は雀頭になる可能性がある
-        for (auto& [k, _] : sute) {
+        for (auto& [k, v] : sute) {
+            // 雀頭が無い && 対子が残っている場合は
+            // 雀頭有りのanalyze4mentsuですでに生成済みのため
+            // 結果を格納しない
+            if (v >= 2) {
+                return;
+            }
             if (remain[k]) {
                 d.valid[k]++;
             }
