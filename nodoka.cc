@@ -183,7 +183,8 @@ int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, con
 
     // 4面子1雀頭
     block_info_t info_mentsu = {M1, M1};
-    block_info_t info_block = {M1, M1};
+    // ターツ(0-1-1-0)の最初の1がM1になるようにするため-1する
+    block_info_t info_block = {M1, M1 - 1};
 
     // 見えている牌(=自摸れない牌)を減らす
     for (auto& [k, v] : visible) {
@@ -282,12 +283,12 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
                 hand[i + 1]++;
                 hand[i + 2]++;
                 if (under) {
-                    remain[i]--;
-                    data.valid[i]++;
+                    remain[i]++;
+                    data.valid[i]--;
                 }
                 if (over) {
-                    remain[i + 3]--;
-                    data.valid[i + 3]++;
+                    remain[i + 3]++;
+                    data.valid[i + 3]--;
                 }
             }
         }
