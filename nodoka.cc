@@ -215,7 +215,7 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
             hand[i + 1]--;
             hand[i + 2]--;
             int bak = info_mentsu.index_first;
-            info_mentsu.index_first = i + 1;
+            info_mentsu.index_first = i;
             analyze4mentsu(result, data, hand, remain, mentsu + 1, toitsu, tatsu, info_mentsu, info_block, janto);
             info_mentsu.index_first = bak;
             hand[i]++;
@@ -229,7 +229,7 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
             has_mentsu = true;
             hand[i] -= 3;
             int bak = info_mentsu.index_second;
-            info_mentsu.index_second = i + 1;
+            info_mentsu.index_second = i;
             analyze4mentsu(result, data, hand, remain, mentsu + 1, toitsu, tatsu, info_mentsu, info_block, janto);
             info_mentsu.index_second = bak;
             hand[i] += 3;
@@ -252,7 +252,7 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
                     hand[i] -= 2;
                     data.valid[i]++;
                     int bak = info_block.index_first;
-                    info_block.index_first = i + 1;
+                    info_block.index_first = i;
                     analyze4mentsu(result, data, hand, remain, mentsu, (janto) ? (toitsu + 1) : (toitsu), tatsu, info_mentsu, info_block, (janto) ? (janto) : (i));
                     info_block.index_first = bak;
                     data.valid[i]--;
@@ -277,7 +277,7 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
                 hand[i + 1]--;
                 hand[i + 2]--;
                 int bak = info_block.index_second;
-                info_block.index_second = i + 1;
+                info_block.index_second = i;
                 analyze4mentsu(result, data, hand, remain, mentsu, toitsu, tatsu + 1, info_mentsu, info_block, janto);
                 info_block.index_second = bak;
                 hand[i + 1]++;
