@@ -51,7 +51,9 @@ int decode(char c1, char c2) {
     else if (c2 == 'z') {
         tile = Z1 + c1 * 4;
     }
-    assert(isValid(tile));
+    if (!isValid(tile)) {
+        throw InvalidFormatException("invalid hai");
+    }
     return tile;
 }
 
@@ -68,6 +70,83 @@ std::unordered_map<int, int> decode(std::string s) {
         map[decode(c1, c2)]++;
     }
     return map;
+}
+void decode(std::unordered_map<int, int>& map, std::unordered_map<int, int>& mentsu, std::string s) {
+    std::istringstream iss(s);
+    char c;
+    char c1, c2;
+    std::vector<int> v;
+    while (true) {
+        v.clear();
+        iss >> c;
+        if (iss.eof()) {
+            break;
+        }
+        switch (c) {
+            case '<':
+                while (true) {
+                    iss >> c1;
+                    if (c1 == '>') {
+                        break;
+                    }
+                    if (iss.eof()) {
+                        throw InvalidFormatException("unexpected EOS");
+                    }
+                    iss >> c2;
+                    v.push_back(decode(c1, c2));
+                }
+                std::sort(v.begin(), v.end(), [](int a, int b) { return a < b; });
+                if (v[0] == v[v.size() - 1]) {
+                    if (v.size() != 3 && v.size() != 4) {
+                        throw InvalidFormatException("unexpected size of hai");
+                    }
+                    if (v.size() == 3) {
+                        mentsu[(K_M1 + v[0] - M1) ^ kOpen]++;
+                    }
+                    else {
+                        mentsu[(K_M1 + v[0] - M1) ^ kOpen ^ kKan]++;
+                    }
+                }
+                else {
+                    if (v.size() != 3) {
+                        throw InvalidFormatException("unexpected size of hai");
+                    }
+                    if (v[1] != v[0] + 1 || v[2] != v[0] + 2) {
+                        throw InvalidFormatException("invalid mentsu format");
+                    }
+                    mentsu[(S_M1 + (v[0] - M1)) ^ kOpen]++;
+                }
+                break;
+            case '(':
+                while (true) {
+                    iss >> c1;
+                    if (c1 == ')') {
+                        break;
+                    }
+                    if (iss.eof()) {
+                        throw InvalidFormatException("unexpected EOS");
+                    }
+                    iss >> c2;
+                    v.push_back(decode(c1, c2));
+                }
+                std::sort(v.begin(), v.end(), [](int a, int b) { return a < b; });
+                if (v.size() != 4) {
+                    throw InvalidFormatException("unexpected size of hai");
+                }
+                if (v[0] != v[3]) {
+                    throw InvalidFormatException("different hai");
+                }
+                mentsu[(K_M1 + (v[0] - M1)) ^ kKan]++;
+                break;
+            default:
+                c1 = c;
+                iss >> c2;
+                if (iss.eof()) {
+                    throw InvalidFormatException("unexpected EOS");
+                }
+                map[decode(c1, c2)]++;
+        }
+    }
 }
 
 std::string encode(int tile) {
@@ -94,7 +173,7 @@ std::string encode(int tile) {
     return oss.str();
 }
 
-int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, const std::unordered_map<int, int>& visible, int mentsu) {
+int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, const std::unordered_map<int, int>& visible, std::unordered_map<int, int>& mentsu) {
     // 残りの牌枚数
     std::unordered_map<int, int> remain = {
         {M1, 4}, {M2, 4}, {M3, 4},
@@ -109,12 +188,16 @@ int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, con
         {Z1, 4}, {Z2, 4}, {Z3, 4},
         {Z4, 4}, {Z5, 4}, {Z6, 4}, {Z7, 4}
     };
+    int mentsu_size = 0;
+    for (auto& [_, v] : mentsu) {
+        mentsu_size += v;
+    }
 
     // 副露した牌がある場合は七対子と国士無双の向聴数を調べない
-    if (!mentsu) {
+    if (!mentsu_size) {
 
         // 七対子
-        data_t chitoitsu = { {}, {}, 6 , Chitoitsu};
+        data_t chitoitsu = { {}, {}, mentsu, 6 , Chitoitsu};
         for (auto& [k, v] : hand) {
             if (v >= 2) {
                 chitoitsu.shanten--;
@@ -132,7 +215,7 @@ int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, con
         result.push_back(chitoitsu);
 
         // 国士無双
-        data_t kokushi = { {}, {}, 13, Kokushi };
+        data_t kokushi = { {}, {}, mentsu, 13, Kokushi };
         std::unordered_set<int> kokushi_set = {M1, M9, P1, P9, S1, S9, Z1, Z2, Z3, Z4, Z5, Z6, Z7};
         bool has_toitsu = false;
         // ダブっている一九字牌が複数ある時は
@@ -192,15 +275,16 @@ int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, con
     }
 
     // 雀頭あり
+    data_t data = { {}, {}, mentsu, 8, Other };
     for (int i = M1; i <= Z7; i++) {
         if (hand[i] >= 2) {
             hand[i] -= 2;
-            analyze4mentsu(result, { {}, {}, 8, Other }, hand, remain, mentsu, 0, 0, info_mentsu, info_block, i);
+            analyze4mentsu(result, data, hand, remain, mentsu_size, 0, 0, info_mentsu, info_block, i);
             hand[i] += 2;
         }
     }
     // 雀頭なし
-    analyze4mentsu(result, { {}, {}, 8, Other }, hand, remain, mentsu, 0, 0, info_mentsu, info_block);
+    analyze4mentsu(result, data, hand, remain, mentsu_size, 0, 0, info_mentsu, info_block);
     std::sort(result.begin(), result.end(), [](auto& a, auto& b) { return a.shanten < b.shanten; });
     return result[0].shanten;
 }
