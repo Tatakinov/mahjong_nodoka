@@ -465,7 +465,20 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
         if (d.shanten != e.shanten) {
             continue;
         }
-        if (d.mentsu_type == e.mentsu_type) {
+        std::unordered_map<int, int> a, b;
+        for (auto& [k, v] : d.mentsu_type) {
+            if (!v) {
+                continue;
+            }
+            a[k] = v;
+        }
+        for (auto& [k, v] : e.mentsu_type) {
+            if (!v) {
+                continue;
+            }
+            b[k] = v;
+        }
+        if (a == b) {
             is_dup = true;
             break;
         }
