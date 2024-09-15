@@ -212,7 +212,7 @@ int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, con
             }
         }
         if (hand.size() < 7) {
-            chitoitsu.shanten -= 7 - hand.size();
+            chitoitsu.shanten += 7 - hand.size();
         }
         result.push_back(chitoitsu);
 
@@ -657,7 +657,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
         }
         if (established) {
             score.fu += 2;
-            score.yaku.emplace(Doko);
+            score.yaku.emplace(Dojun);
         }
     }
     // 小三元
