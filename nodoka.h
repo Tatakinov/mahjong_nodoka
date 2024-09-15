@@ -81,7 +81,7 @@ enum Yaku {
 struct data_t {
     std::unordered_map<int, int> valid;
     std::unordered_map<int, int> sute;
-    std::unordered_map<int, int> mentsu_type;
+    std::unordered_map<int, int> composition;
     int shanten;
     ShapeType shape_type;
 };

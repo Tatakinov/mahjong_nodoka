@@ -5,8 +5,6 @@
 #include <sstream>
 #include <unordered_set>
 
-#include <iostream>
-
 // 同じ面子構成を計算しないようにするための
 // インデックス情報を保持する構造体
 struct block_info_t {
@@ -302,9 +300,9 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
             hand[i + 2]--;
             int bak = info_mentsu.index_first;
             info_mentsu.index_first = i;
-            data.mentsu_type[i - M1 + S_M1]++;
+            data.composition[i - M1 + S_M1]++;
             analyze4mentsu(result, data, hand, remain, mentsu + 1, toitsu, tatsu, info_mentsu, info_block, janto);
-            data.mentsu_type[i - M1 + S_M1]--;
+            data.composition[i - M1 + S_M1]--;
             info_mentsu.index_first = bak;
             hand[i]++;
             hand[i + 1]++;
@@ -318,9 +316,9 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
             hand[i] -= 3;
             int bak = info_mentsu.index_second;
             info_mentsu.index_second = i;
-            data.mentsu_type[i - M1 + K_M1]++;
+            data.composition[i - M1 + K_M1]++;
             analyze4mentsu(result, data, hand, remain, mentsu + 1, toitsu, tatsu, info_mentsu, info_block, janto);
-            data.mentsu_type[i - M1 + K_M1]--;
+            data.composition[i - M1 + K_M1]--;
             info_mentsu.index_second = bak;
             hand[i] += 3;
         }
@@ -466,13 +464,13 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
             continue;
         }
         std::unordered_map<int, int> a, b;
-        for (auto& [k, v] : d.mentsu_type) {
+        for (auto& [k, v] : d.composition) {
             if (!v) {
                 continue;
             }
             a[k] = v;
         }
-        for (auto& [k, v] : e.mentsu_type) {
+        for (auto& [k, v] : e.composition) {
             if (!v) {
                 continue;
             }
@@ -539,7 +537,8 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
         }
         std::vector<data_t> result;
         std::unordered_map<int, int> _;
-        analyze(result, hand, hand, _);
+        auto map = hand;
+        analyze(result, map, map, _);
         int shanten = result[0].shanten;
         std::unordered_set<int> valid;
         for (auto& e : result) {
