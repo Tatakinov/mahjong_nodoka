@@ -5,6 +5,8 @@
 #include <sstream>
 #include <unordered_set>
 
+#include <iostream>
+
 // 同じ面子構成を計算しないようにするための
 // インデックス情報を保持する構造体
 struct block_info_t {
@@ -300,7 +302,9 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
             hand[i + 2]--;
             int bak = info_mentsu.index_first;
             info_mentsu.index_first = i;
+            data.mentsu_type[i - M1 + S_M1]++;
             analyze4mentsu(result, data, hand, remain, mentsu + 1, toitsu, tatsu, info_mentsu, info_block, janto);
+            data.mentsu_type[i - M1 + S_M1]--;
             info_mentsu.index_first = bak;
             hand[i]++;
             hand[i + 1]++;
@@ -314,7 +318,9 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
             hand[i] -= 3;
             int bak = info_mentsu.index_second;
             info_mentsu.index_second = i;
+            data.mentsu_type[i - M1 + K_M1]++;
             analyze4mentsu(result, data, hand, remain, mentsu + 1, toitsu, tatsu, info_mentsu, info_block, janto);
+            data.mentsu_type[i - M1 + K_M1]--;
             info_mentsu.index_second = bak;
             hand[i] += 3;
         }
@@ -454,7 +460,19 @@ void analyze4mentsu(std::vector<data_t>& result, data_t data, std::unordered_map
         }
     }
     d.shanten = calcShanten(mentsu, toitsu, tatsu);
-    result.push_back(d);
+    bool is_dup = false;
+    for (auto& e : result) {
+        if (d.shanten != e.shanten) {
+            continue;
+        }
+        if (d.mentsu_type == e.mentsu_type) {
+            is_dup = true;
+            break;
+        }
+    }
+    if (!is_dup) {
+        result.push_back(d);
+    }
 }
 
 int calcShanten(int mentsu, int toitsu, int tatsu) {
@@ -471,4 +489,645 @@ int calcShanten(int mentsu, int toitsu, int tatsu) {
         shanten++;
     }
     return shanten;
+}
+
+score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_map<int, int> mentsu, int agari, int ba, int ji, std::unordered_map<int, int>& dora) {
+    score_t score = {0, 0};
+    auto base = hand;
+    base[agari]++;
+    // 平和
+    {
+        auto h = base;
+        int count = 0;
+        bool is_open = false;
+        for (auto& [k, v] : mentsu) {
+            if (k & kOpen) {
+                is_open = true;
+                break;
+            }
+        }
+        for (auto& [k, v] : mentsu) {
+            if (
+                    (k >= S_M1 && k <= S_M7) ||
+                    (k >= S_P1 && k <= S_P7) ||
+                    (k >= S_S1 && k <= S_S7)
+               ) {
+                h[k] -= v;
+                h[k + 1] -= v;
+                h[k + 2] -= v;
+                count += v;
+            }
+        }
+        int janto = 0;
+        for (auto& [k ,v] : h) {
+            if (v == 2) {
+                janto = k;
+            }
+        }
+        std::vector<data_t> result;
+        std::unordered_map<int, int> _;
+        analyze(result, hand, hand, _);
+        int shanten = result[0].shanten;
+        std::unordered_set<int> valid;
+        for (auto& e : result) {
+            if (shanten < e.shanten) {
+                break;
+            }
+            for (auto& [k, v] : e.valid) {
+                if (!v) {
+                    continue;
+                }
+                valid.emplace(k);
+            }
+        }
+        if (!is_open && valid.size() >= 2 && count == 4 && janto && janto <= Z4 && janto != ba && janto != ji) {
+            score.fu += 1;
+            score.yaku.emplace(Pinfu);
+        }
+    }
+    // タンヤオ
+    {
+        auto h = base;
+        bool established = true;
+        for (auto& [k, v] : h) {
+            if (!v) {
+                continue;
+            }
+            if (k == M1 || k == M9 || k == P1 || k == P9 || k == S1 ||
+                    k == S9 || k >= Z1) {
+                established = false;
+            }
+        }
+        if (established) {
+            score.fu += 1;
+            score.yaku.emplace(Tanyao);
+        }
+    }
+    // 一盃口
+    {
+        int count = 0;
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0x7f; // 鳴いているかを無視
+            if (k >= S_M1 && k <= S_S7 && v == 2) {
+                count++;
+            }
+        }
+        if (count == 1) {
+            score.fu += 1;
+            score.yaku.emplace(Ipeko);
+        }
+    }
+    // 対々和
+    {
+        int count = 0;
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0x7f; // 鳴いているか/槓子かを無視
+            if (k >= K_M1 && k <= K_Z7) {
+                count++;
+            }
+        }
+        if (count == 4) {
+            score.fu += 2;
+            score.yaku.emplace(Toitoi);
+        }
+    }
+    // 混老頭
+    {
+        auto h = base;
+        bool established = true;
+        bool has_ji = false;
+        for (auto& [k, v] : h) {
+            if (!v) {
+                continue;
+            }
+            if (
+                    (k >= M2 && k <= M8) ||
+                    (k >= P2 && k <= P8) ||
+                    (k >= S2 && k <= S8)
+               ) {
+                established = false;
+                break;
+            }
+            if (k >= Z1 && k <= Z7) {
+                has_ji = true;
+            }
+        }
+        if (type == Other && has_ji && established) {
+            score.fu += 2;
+            score.yaku.emplace(Honroto);
+        }
+    }
+    // 三暗刻
+    {
+        int count = 0;
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0xff; // 槓子かを無視
+            if (!v) {
+                continue;
+            }
+            if (k >= K_M1 && k <= K_Z7) {
+                count++;
+            }
+        }
+        if (count >= 3) {
+            score.fu += 2;
+            score.yaku.emplace(Sananko);
+        }
+    }
+    // 三色同刻
+    {
+        bool established = false;
+        for (int i = K_M1; i <= K_M9; i++) {
+            if (mentsu[i] && mentsu[i + 11] && mentsu[i + 22]) {
+                established = true;
+            }
+        }
+        if (established) {
+            score.fu += 2;
+            score.yaku.emplace(Doko);
+        }
+    }
+    // 三色同順
+    {
+        bool established = false;
+        for (int i = S_M1; i <= S_M7; i++) {
+            if (mentsu[i] && mentsu[i + 11] && mentsu[i + 22]) {
+                established = true;
+            }
+        }
+        if (established) {
+            score.fu += 2;
+            score.yaku.emplace(Doko);
+        }
+    }
+    // 小三元
+    {
+        auto h = base;
+        int count = 0;
+        for (auto& [k, v] : h) {
+            if (k < Z5) {
+                continue;
+            }
+            if (v >= 2) {
+                count++;
+                if (v >= 3) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 5) {
+            score.fu += 2;
+            score.yaku.emplace(Shosangen);
+        }
+    }
+    // 一気通貫
+    {
+        std::unordered_map<int, int> m;
+        bool is_open = false;
+        for (auto& [key, v] : mentsu) {
+            if (!v) {
+                continue;
+            }
+            auto k = key & 0x7f;
+            if (k != key) {
+                is_open = true;
+            }
+            m[k] += v;
+        }
+        if (
+                (m[S_M1] && m[S_M4] && m[S_M7]) ||
+                (m[S_M1] && m[S_M4] && m[S_M7]) ||
+                (m[S_M1] && m[S_M4] && m[S_M7])
+           ) {
+            score.fu += 2 - is_open;
+            score.yaku.emplace(Ikki);
+        }
+    }
+    // 三槓子
+    {
+        int count = 0;
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0x17f;
+            if (!v) {
+                continue;
+            }
+            if (k & kKan) {
+                count++;
+            }
+        }
+        if (count >= 3) {
+            score.fu += 2;
+            score.yaku.emplace(Sankantsu);
+        }
+    }
+    // チャンタ
+    {
+        auto h = base;
+        int count = 0;
+        bool is_open = false;
+        bool has_ji = false;
+        bool has_19 = false;
+        for (auto& [k, v] : h) {
+            if (!v) {
+                continue;
+            }
+            if (k >= Z1) {
+                has_ji = true;
+                break;
+            }
+            if (k == M1 || k == M9 || k == P1 || k == P9 ||
+                    k == S1 || k == S9) {
+                has_19 = true;
+            }
+        }
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0x7f;
+            if (!v) {
+                continue;
+            }
+            if (k != key) {
+                is_open = true;
+            }
+            if (k == S_M1 || k == S_M7 || k == S_P1 || k == S_P7 ||
+                    k == S_S1 || k == S_S7
+               ) {
+                h[k] -= v;
+                h[k + 1] -= v;
+                h[k + 2] -= v;
+                count += v;
+            }
+            if (k == K_M1 || k == K_M9 ||
+                    k == K_P1 || k == K_P9 || k == K_S1 || k == K_S9 ||
+                    k >= K_Z1
+               ) {
+                h[k] -= 3;
+                count++;
+            }
+        }
+        int janto = 0;
+        for (auto& [k ,v] : h) {
+            if (v == 2) {
+                janto = k;
+            }
+        }
+        if (has_ji && has_19 && count == 4 && janto && (
+                janto == M1 || janto == M9 ||
+                janto == P1 || janto == P9 || janto == S1 ||
+                janto == S9 || janto >= Z1
+                ) && !score.yaku.count(Honroto)
+                ) {
+            score.fu += 2 - is_open;
+            score.yaku.emplace(Chanta);
+        }
+    }
+    // 七対子
+    {
+        if (type == Chitoitsu) {
+            score.fu += 2;
+            score.yaku.emplace(Chi);
+        }
+    }
+    // 混一色
+    {
+        auto h = base;
+        bool is_open = false;
+        for (auto& [k, v] : mentsu) {
+            if (k & kOpen) {
+                is_open = true;
+                break;
+            }
+        }
+        std::unordered_set<int> kind;
+        for (auto& [k, v] : h) {
+            if (!v) {
+                continue;
+            }
+            if (k >= M1 && k <= M9) {
+                kind.emplace(0);
+            }
+            if (k >= P1 && k <= P9) {
+                kind.emplace(1);
+            }
+            if (k >= S1 && k <= S9) {
+                kind.emplace(2);
+            }
+            if (k >= Z1 && k <= Z7) {
+                kind.emplace(3);
+            }
+        }
+        if (kind.size() == 2 && kind.count(3)) {
+            score.fu += 3 - is_open;
+            score.yaku.emplace(Honitsu);
+        }
+    }
+    // 純チャン
+    {
+        auto h = base;
+        int count = 0;
+        bool is_open = false;
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0x7f;
+            if (!v) {
+                continue;
+            }
+            if (k != key) {
+                is_open = true;
+            }
+            if (k == S_M1 || k == S_M7 || k == S_P1 || k == S_P7 ||
+                    k == S_S1 || k == S_S7
+               ) {
+                h[k] -= v;
+                h[k + 1] -= v;
+                h[k + 2] -= v;
+                count += v;
+            }
+            if (k == K_M1 || k == K_M9 ||
+                    k == K_P1 || k == K_P9 || k == K_S1 || k == K_S9
+               ) {
+                h[k] -= 3;
+                count++;
+            }
+        }
+        int janto = 0;
+        for (auto& [k ,v] : h) {
+            if (v == 2) {
+                janto = k;
+            }
+        }
+        if (count == 4 && janto && (
+                    janto == M1 || janto == M9 ||
+                    janto == P1 || janto == P9 || janto == S1 ||
+                    janto == S9 || janto >= Z1
+                    )) {
+            score.fu += 3 - is_open;
+            score.yaku.emplace(Junchan);
+        }
+    }
+    // 二盃口
+    {
+        int count = 0;
+        for (auto& [k, v] : mentsu) {
+            if (k >= S_M1 && k <= S_S7 && v == 2) {
+                count++;
+            }
+        }
+        if (count == 2) {
+            score.fu += 3;
+            score.yaku.emplace(Ryanpeko);
+        }
+    }
+    // 清一色
+    {
+        auto h = base;
+        bool is_open = false;
+        for (auto& [k, v] : mentsu) {
+            if (k & kOpen) {
+                is_open = true;
+                break;
+            }
+        }
+        std::unordered_set<int> kind;
+        for (auto& [k, v] : h) {
+            if (!v) {
+                continue;
+            }
+            if (k >= M1 && k <= M9) {
+                kind.emplace(0);
+            }
+            if (k >= P1 && k <= P9) {
+                kind.emplace(1);
+            }
+            if (k >= S1 && k <= S9) {
+                kind.emplace(2);
+            }
+            if (k >= Z1 && k <= Z7) {
+                kind.emplace(3);
+            }
+        }
+        if (kind.size() == 1 && !kind.count(3)) {
+            score.fu += 6 - is_open;
+            score.yaku.emplace(Chinitsu);
+        }
+    }
+    // 大三元
+    {
+        int count = 0;
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0x7f; // 鳴いたか/槓子かを無視
+            if (!v) {
+                continue;
+            }
+            if (k >= K_Z5 && k <= K_Z7) {
+                count++;
+            }
+        }
+        if (count == 3) {
+            score.fu += 13;
+            score.yaku.emplace(Daisangen);
+        }
+    }
+    // 四喜和
+    {
+        auto h = base;
+        int count = 0;
+        for (auto& [k, v] : h) {
+            if (k < Z1 || k > Z4) {
+                continue;
+            }
+            if (v >= 2) {
+                count++;
+                if (v >= 3) {
+                    count++;
+                }
+            }
+        }
+        if (count >= 7) {
+            score.fu += 13;
+            score.yaku.emplace(Sushiho);
+        }
+    }
+    // 字一色
+    {
+        auto h = base;
+        int count = 0;
+        bool established = false;
+        for (int i = Z1; i <= Z7; i++) {
+            if (h[i] == 2) {
+                established = true;
+            }
+        }
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0x7f;
+            if (k >= K_Z1 && k <= K_Z7) {
+                count++;
+            }
+        }
+        if (count == 4 && established) {
+            score.fu += 13;
+            score.yaku.emplace(Tsuiso);
+        }
+    }
+    // 緑一色
+    {
+        auto h = base;
+        bool established = true;
+        for (auto& [k, v] : h) {
+            if (!v) {
+                continue;
+            }
+            if (k != S2 && k != S3 && k != S4 && k != S6 &&
+                    k != S8 && k != Z6) {
+                established = false;
+                break;
+            }
+        }
+        if (established) {
+            score.fu += 13;
+            score.yaku.emplace(Ryuiso);
+        }
+    }
+    // 清老頭
+    {
+        auto h = base;
+        bool established = true;
+        for (auto& [k, v] : h) {
+            if (!v) {
+                continue;
+            }
+            if (k != M1 && k != M9 && k != P1 && k != P9 &&
+                    k != S1 && k != S9) {
+                established = false;
+                break;
+            }
+        }
+        if (established) {
+            score.fu += 13;
+            score.yaku.emplace(Chinroto);
+        }
+    }
+    // 四暗刻
+    {
+        int count = 0;
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0xff;
+            if (!v) {
+                continue;
+            }
+            if (k >= K_M1 && k <= K_Z7) {
+                count++;
+            }
+        }
+        if (count == 4) {
+            score.fu += 13;
+            score.yaku.emplace(Suanko);
+        }
+    }
+    // 国士無双
+    {
+        auto h = base;
+        int count = 0;
+        for (auto& [k, v] : h) {
+            if (!v) {
+                continue;
+            }
+            if (k == M1 || k == M9 || k == P1 || k == P9 || k == S1 ||
+                    k == S9 || (k >= Z1 && k <= Z7)) {
+                if (v == 1) {
+                    count++;
+                }
+                if (v == 2) {
+                    count += 2;
+                }
+            }
+        }
+        if (count == 15) {
+            score.fu += 13;
+            score.yaku.emplace(Kokushimusou);
+        }
+    }
+    // 九蓮宝燈
+    {
+        bool is_open = false;
+        for (auto& [k, v] : mentsu) {
+            if (k & kOpen) {
+                is_open = true;
+                break;
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            auto h = base;
+            h[M1 + i * 11] -= 3;
+            for (int j = 1; j < 8; j++) {
+                h[M1 + j + i * 11]--;
+            }
+            h[M1 + 8 + i * 11] -= 3;
+            int count = 0;
+            int hai = 0;
+            for (auto& [k, v] : h) {
+                if (v == 1) {
+                    hai = k;
+                }
+                if (v) {
+                    count++;
+                }
+            }
+            if (!is_open && count == 1 && hai >= M1 + i * 11 && hai < M1 + (i + 1) * 11) {
+                score.fu += 13;
+                score.yaku.emplace(Churen);
+                break;
+            }
+        }
+    }
+    // 四槓子
+    {
+        int count = 0;
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0x17f;
+            if (!v) {
+                continue;
+            }
+            if (k & kKan) {
+                count++;
+            }
+        }
+        if (count == 4) {
+            score.fu += 13;
+            score.yaku.emplace(Sukantsu);
+        }
+    }
+    // 翻牌
+    {
+        int count = 0;
+        ba = ba - M1 + K_M1;
+        ji = ji - M1 + K_M1;
+        for (auto& [key, v] : mentsu) {
+            auto k = key & 0x7f;
+            if (k >= K_Z5) {
+                count++;
+            }
+            if (k == ba) {
+                count++;
+            }
+            if (k == ji) {
+                count++;
+            }
+        }
+        if (count) {
+            score.fu += count;
+            score.yaku.emplace(Fanpai + count - 1);
+        }
+    }
+    // ドラ
+    {
+        auto h = base;
+        int count = 0;
+        for (auto& [k, v] : dora) {
+            count += h[k] * v;
+        }
+        if (count) {
+            score.fu += count;
+            score.yaku.emplace(Dora + count - 1);
+        }
+    }
+    return score;
 }

@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 const int kOpen = 0x80;
@@ -26,11 +27,55 @@ enum MentsuType {
     K_M1 = 34, K_M2, K_M3, K_M4, K_M5, K_M6, K_M7, K_M8, K_M9,
     K_P1 = 45, K_P2, K_P3, K_P4, K_P5, K_P6, K_P7, K_P8, K_P9,
     K_S1 = 56, K_S2, K_S3, K_S4, K_S5, K_S6, K_S7, K_S8, K_S9,
-    K_Z1 = 67, K_Z2, K_Z3, K_Z4, K_Z5, K_Z6, K_Z7,
+    K_Z1 = 68, K_Z2 = 72, K_Z3 = 76, K_Z4 = 80, K_Z5 = 84, K_Z6 = 88, K_Z7 = 92,
 };
 
 enum ShapeType {
     Chitoitsu, Kokushi, Other
+};
+
+enum Yaku {
+    Richi = 1,
+    Menzen,
+    Pinfu,
+    Tanyao,
+    Haite,
+    Hote,
+    Rinshan,
+    Chankan,
+    Ipeko,
+
+    Toitoi,
+    Honroto,
+    Sananko,
+    Doko,
+    Dojun,
+    Shosangen,
+    Ikki,
+    Sankantsu,
+    Daburi,
+    Chanta,
+    Chi,
+
+    Honitsu,
+    Junchan,
+    Ryanpeko,
+
+    Chinitsu,
+
+    Daisangen,
+    Sushiho,
+    Tsuiso,
+    Ryuiso,
+    Chinroto,
+    Suanko,
+    Kokushimusou,
+    Churen,
+    Sukantsu,
+
+    Fanpai,
+
+    Dora = Fanpai + 5,
 };
 
 struct data_t {
@@ -39,6 +84,12 @@ struct data_t {
     std::unordered_map<int, int> mentsu_type;
     int shanten;
     ShapeType shape_type;
+};
+
+struct score_t {
+    int fu;
+    int han; // FIXME stub
+    std::unordered_set<int> yaku;
 };
 
 class InvalidFormatException : public std::runtime_error {
@@ -51,5 +102,7 @@ void decode(std::unordered_map<int, int>& map, std::unordered_map<int, int>& men
 std::string encode(int tile);
 
 int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, const std::unordered_map<int, int>& visible, std::unordered_map<int, int>& mentsu);
+
+score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_map<int, int> mentsu, int agari, int ba, int ji, std::unordered_map<int, int>& dora);
 
 #endif // NODOKA_H_
