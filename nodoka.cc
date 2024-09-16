@@ -556,7 +556,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (valid.size() >= 2) {
-            score.fu += 1;
+            score.han += 1;
             score.yaku.emplace(Pinfu);
         }
     } while (false);
@@ -574,7 +574,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (established) {
-            score.fu += 1;
+            score.han += 1;
             score.yaku.emplace(Tanyao);
         }
     }
@@ -588,7 +588,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count == 1) {
-            score.fu += 1;
+            score.han += 1;
             score.yaku.emplace(Ipeko);
         }
     }
@@ -602,7 +602,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count == 4) {
-            score.fu += 2;
+            score.han += 2;
             score.yaku.emplace(Toitoi);
         }
     }
@@ -628,7 +628,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (type == Other && has_ji && established) {
-            score.fu += 2;
+            score.han += 2;
             score.yaku.emplace(Honroto);
         }
     }
@@ -645,7 +645,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count >= 3) {
-            score.fu += 2;
+            score.han += 2;
             score.yaku.emplace(Sananko);
         }
     }
@@ -658,7 +658,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (established) {
-            score.fu += 2;
+            score.han += 2;
             score.yaku.emplace(Doko);
         }
     }
@@ -671,7 +671,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (established) {
-            score.fu += 2;
+            score.han += 2;
             score.yaku.emplace(Dojun);
         }
     }
@@ -691,7 +691,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count >= 5) {
-            score.fu += 2;
+            score.han += 2;
             score.yaku.emplace(Shosangen);
         }
     }
@@ -714,7 +714,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
                 (m[S_M1] && m[S_M4] && m[S_M7]) ||
                 (m[S_M1] && m[S_M4] && m[S_M7])
            ) {
-            score.fu += 2 - is_open;
+            score.han += 2 - is_open;
             score.yaku.emplace(Ikki);
         }
     }
@@ -731,7 +731,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count >= 3) {
-            score.fu += 2;
+            score.han += 2;
             score.yaku.emplace(Sankantsu);
         }
     }
@@ -791,14 +791,14 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
                 janto == S9 || janto >= Z1
                 ) && !score.yaku.count(Honroto)
                 ) {
-            score.fu += 2 - is_open;
+            score.han += 2 - is_open;
             score.yaku.emplace(Chanta);
         }
     }
     // 七対子
     {
         if (type == Chitoitsu) {
-            score.fu += 2;
+            score.han += 2;
             score.yaku.emplace(Chi);
         }
     }
@@ -831,7 +831,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (kind.size() == 2 && kind.count(3)) {
-            score.fu += 3 - is_open;
+            score.han += 3 - is_open;
             score.yaku.emplace(Honitsu);
         }
     }
@@ -874,7 +874,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
                     janto == P1 || janto == P9 || janto == S1 ||
                     janto == S9 || janto >= Z1
                     )) {
-            score.fu += 3 - is_open;
+            score.han += 3 - is_open;
             score.yaku.emplace(Junchan);
         }
     }
@@ -887,7 +887,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count == 2) {
-            score.fu += 3;
+            score.han += 3;
             score.yaku.emplace(Ryanpeko);
         }
     }
@@ -920,7 +920,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (kind.size() == 1 && !kind.count(3)) {
-            score.fu += 6 - is_open;
+            score.han += 6 - is_open;
             score.yaku.emplace(Chinitsu);
         }
     }
@@ -937,7 +937,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count == 3) {
-            score.fu += 13;
+            score.han += 13;
             score.yaku.emplace(Daisangen);
         }
     }
@@ -957,7 +957,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count >= 7) {
-            score.fu += 13;
+            score.han += 13;
             score.yaku.emplace(Sushiho);
         }
     }
@@ -978,7 +978,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count == 4 && established) {
-            score.fu += 13;
+            score.han += 13;
             score.yaku.emplace(Tsuiso);
         }
     }
@@ -997,7 +997,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (established) {
-            score.fu += 13;
+            score.han += 13;
             score.yaku.emplace(Ryuiso);
         }
     }
@@ -1016,7 +1016,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (established) {
-            score.fu += 13;
+            score.han += 13;
             score.yaku.emplace(Chinroto);
         }
     }
@@ -1033,7 +1033,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count == 4) {
-            score.fu += 13;
+            score.han += 13;
             score.yaku.emplace(Suanko);
         }
     }
@@ -1055,7 +1055,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count == 1 && kind.size() == 13) {
-            score.fu += 13;
+            score.han += 13;
             score.yaku.emplace(Kokushimusou);
         }
     }
@@ -1086,7 +1086,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
                 }
             }
             if (!is_open && count == 1 && hai >= M1 + i * 11 && hai < M1 + (i + 1) * 11) {
-                score.fu += 13;
+                score.han += 13;
                 score.yaku.emplace(Churen);
                 break;
             }
@@ -1105,7 +1105,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count == 4) {
-            score.fu += 13;
+            score.han += 13;
             score.yaku.emplace(Sukantsu);
         }
     }
@@ -1127,7 +1127,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             }
         }
         if (count) {
-            score.fu += count;
+            score.han += count;
             score.yaku.emplace(Fanpai + count - 1);
         }
     }
@@ -1139,7 +1139,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             count += h[k] * v;
         }
         if (count) {
-            score.fu += count;
+            score.han += count;
             score.yaku.emplace(Dora + count - 1);
         }
     }

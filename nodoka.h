@@ -79,8 +79,8 @@ enum Yaku {
 };
 
 struct score_t {
-    int fu { 0 };
-    int han { 0 }; // FIXME stub
+    int han { 0 };
+    int fu { 0 }; // FIXME stub
     std::unordered_set<int> yaku {};
 };
 

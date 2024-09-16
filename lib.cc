@@ -116,11 +116,11 @@ std::string __request(std::string request) {
                 yaku_result.push_back(e);
             }
             sort(yaku_result.begin(), yaku_result.end(), [](const data_t& a, const data_t& b) {
-                return a.score.fu > b.score.fu;
+                return a.score.han > b.score.han;
             });
-            int fu = yaku_result[0].score.fu;
+            int han = yaku_result[0].score.han;
             for (auto& e : yaku_result) {
-                if (fu > e.score.fu) {
+                if (han > e.score.han) {
                     break;
                 }
                 for (auto& [k, v] : e.sute) {
@@ -130,7 +130,7 @@ std::string __request(std::string request) {
                 }
             }
             std::ostringstream oss;
-            oss << fu << ",";
+            oss << han << ",";
             for (auto e : sute) {
                 oss << encode(e);
             }
