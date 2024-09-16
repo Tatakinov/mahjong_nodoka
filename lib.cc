@@ -70,13 +70,13 @@ std::string __request(std::string request) {
     if (req(0).value() == "yaku") {
         try {
             saori::Response res = {200, "OK"};
-            auto hand_s = req(1).value() + req(3).value();
-            auto visible_s = req(2).value();
-            auto tsumo_s = req(3).value();
+            auto hand_s = req(1).value() + req(2).value();
+            auto tsumo_s = req(2).value();
+            auto visible_s = req(3).value();
             auto all_s = req(1).value();
             auto dora_s = req(4).value();
             auto ba_s = req(5).value();
-            auto ji_s = req(5).value();
+            auto ji_s = req(6).value();
 
             std::unordered_map<int, int> hand, composition;
             decode(hand, composition, hand_s);
