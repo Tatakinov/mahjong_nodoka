@@ -1041,21 +1041,20 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     {
         auto h = base;
         int count = 0;
+        std::unordered_set<int> kind;
         for (auto& [k, v] : h) {
             if (!v) {
                 continue;
             }
             if (k == M1 || k == M9 || k == P1 || k == P9 || k == S1 ||
                     k == S9 || (k >= Z1 && k <= Z7)) {
-                if (v == 1) {
-                    count++;
-                }
+                kind.emplace(k);
                 if (v == 2) {
-                    count += 2;
+                    count++;
                 }
             }
         }
-        if (count == 15) {
+        if (count == 1 && kind.size() == 13) {
             score.fu += 13;
             score.yaku.emplace(Kokushimusou);
         }

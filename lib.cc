@@ -23,7 +23,7 @@ std::string __request(std::string request) {
             saori::Response res = {200, "OK"};
             std::unordered_map<int, int> hand, composition;
             decode(hand, composition, req(1).value());
-            std::unordered_map<int, int> visible = decode(req(2).value());
+            auto visible = decode(req(2).value());
             std::vector<data_t> result;
             analyze(result, hand, visible, composition);
             if (result.size() == 0) {
@@ -112,7 +112,7 @@ std::string __request(std::string request) {
                 if (shanten < e.shanten) {
                     break;
                 }
-                e.score = yaku(e.shape_type, all, e.composition, agari, ba, ji, dora);
+                e.score = yaku(e.shape_type, all, e.composition, tsumo, ba, ji, dora);
                 yaku_result.push_back(e);
             }
             sort(yaku_result.begin(), yaku_result.end(), [](const data_t& a, const data_t& b) {

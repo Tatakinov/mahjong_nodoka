@@ -99,6 +99,7 @@ class InvalidFormatException : public std::runtime_error {
 };
 
 int decode(char c1, char c2);
+std::unordered_map<int, int> decode(std::string s);
 void decode(std::unordered_map<int, int>& map, std::unordered_map<int, int>& mentsu, std::string s);
 std::string encode(int tile);
 
