@@ -197,7 +197,7 @@ int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, con
     if (!mentsu_size) {
 
         // 七対子
-        data_t chitoitsu = { {}, {}, mentsu, 6 , Chitoitsu};
+        data_t chitoitsu = { {}, {}, mentsu, 6 , Chitoitsu, {} };
         for (auto& [k, v] : hand) {
             if (v >= 2) {
                 chitoitsu.shanten--;
@@ -215,7 +215,7 @@ int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, con
         result.push_back(chitoitsu);
 
         // 国士無双
-        data_t kokushi = { {}, {}, mentsu, 13, Kokushi };
+        data_t kokushi = { {}, {}, mentsu, 13, Kokushi, {} };
         std::unordered_set<int> kokushi_set = {M1, M9, P1, P9, S1, S9, Z1, Z2, Z3, Z4, Z5, Z6, Z7};
         bool has_toitsu = false;
         // ダブっている一九字牌が複数ある時は
@@ -275,7 +275,7 @@ int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, con
     }
 
     // 雀頭あり
-    data_t data = { {}, {}, mentsu, 8, Other };
+    data_t data = { {}, {}, mentsu, 8, Other, {} };
     for (int i = M1; i <= Z7; i++) {
         if (hand[i] >= 2) {
             hand[i] -= 2;

@@ -78,18 +78,19 @@ enum Yaku {
     Dora = Fanpai + 5,
 };
 
+struct score_t {
+    int fu { 0 };
+    int han { 0 }; // FIXME stub
+    std::unordered_set<int> yaku {};
+};
+
 struct data_t {
     std::unordered_map<int, int> valid;
     std::unordered_map<int, int> sute;
     std::unordered_map<int, int> composition;
     int shanten;
     ShapeType shape_type;
-};
-
-struct score_t {
-    int fu;
-    int han; // FIXME stub
-    std::unordered_set<int> yaku;
+    score_t score;
 };
 
 class InvalidFormatException : public std::runtime_error {
