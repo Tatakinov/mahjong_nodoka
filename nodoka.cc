@@ -507,7 +507,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     auto base = hand;
     base[agari]++;
     // 平和
-    {
+    do {
         auto h = base;
         int count = 0;
         bool is_open = false;
@@ -535,6 +535,9 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
                 janto = k;
             }
         }
+        if (is_open || count != 4 || !janto || janto > Z4 || janto == ba || janto == ji) {
+            break;
+        }
         std::vector<data_t> result;
         std::unordered_map<int, int> _;
         auto map = hand;
@@ -552,11 +555,11 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
                 valid.emplace(k);
             }
         }
-        if (!is_open && valid.size() >= 2 && count == 4 && janto && janto <= Z4 && janto != ba && janto != ji) {
+        if (valid.size() >= 2) {
             score.fu += 1;
             score.yaku.emplace(Pinfu);
         }
-    }
+    } while (false);
     // タンヤオ
     {
         auto h = base;
