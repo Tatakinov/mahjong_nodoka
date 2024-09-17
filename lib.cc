@@ -106,13 +106,13 @@ std::string __request(std::string request) {
             }
             // 最小向聴数のデータの有効牌/不要牌をまとめたものを返す
             int shanten = result[0].shanten;
-            std::unordered_set<int> valid, sute;
+            std::unordered_set<int> valid, sute, ya;
             std::vector<data_t> yaku_result;
             for (auto& e : result) {
                 if (shanten < e.shanten) {
                     break;
                 }
-                e.score = yaku(e.shape_type, all, e.composition, tsumo, ba, ji, dora);
+                e.score = yaku(e.shape_type, all, e.composition, tsumo, ba, ji, dora, e.sute);
                 yaku_result.push_back(e);
             }
             sort(yaku_result.begin(), yaku_result.end(), [](const data_t& a, const data_t& b) {
@@ -128,11 +128,73 @@ std::string __request(std::string request) {
                         sute.emplace(k);
                     }
                 }
+                for (auto f : e.score.yaku) {
+                    ya.emplace(f);
+                }
             }
             std::ostringstream oss;
             oss << han << ",";
             for (auto e : sute) {
                 oss << encode(e);
+            }
+            oss << ",";
+            bool once = true;
+            for (auto e : ya) {
+                if (once) {
+                    once = false;
+                }
+                else {
+                    oss << "/";
+                }
+                if (e < Fanpai) {
+                    const char *str[] = {
+                        "None",
+                        "Richi",
+                        "Menzen",
+                        "Pinfu",
+                        "Tanyao",
+                        "Haite",
+                        "Hote",
+                        "Rinshan",
+                        "Chankan",
+                        "Ipeko",
+
+                        "Toitoi",
+                        "Honroto",
+                        "Sananko",
+                        "Doko",
+                        "Dojun",
+                        "Shosangen",
+                        "Ikki",
+                        "Sankantsu",
+                        "Daburi",
+                        "Chanta",
+                        "Chitoitsu",
+
+                        "Honitsu",
+                        "Junchan",
+                        "Ryanpeko",
+
+                        "Chinitsu",
+
+                        "Daisangen",
+                        "Sushiho",
+                        "Tsuiso",
+                        "Ryuiso",
+                        "Chinroto",
+                        "Suanko",
+                        "Kokushimusou",
+                        "Churen",
+                        "Sukantsu"
+                    };
+                    oss << str[e];
+                }
+                else if (e >= Dora) {
+                    oss << "Dora";
+                }
+                else {
+                    oss << "Fanpai";
+                }
             }
             res() = oss.str();
             return res;

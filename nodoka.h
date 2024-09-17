@@ -105,6 +105,6 @@ std::string encode(int tile);
 
 int analyze(std::vector<data_t>& result, std::unordered_map<int, int>& hand, const std::unordered_map<int, int>& visible, std::unordered_map<int, int>& mentsu);
 
-score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_map<int, int> mentsu, int agari, int ba, int ji, std::unordered_map<int, int>& dora);
+score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_map<int, int> mentsu, int agari, int ba, int ji, std::unordered_map<int, int>& dora, std::unordered_map<int, int>& sute);
 
 #endif // NODOKA_H_

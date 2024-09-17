@@ -502,7 +502,7 @@ int calcShanten(int mentsu, int toitsu, int tatsu) {
     return shanten;
 }
 
-score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_map<int, int> mentsu, int agari, int ba, int ji, std::unordered_map<int, int>& dora) {
+score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_map<int, int> mentsu, int agari, int ba, int ji, std::unordered_map<int, int>& dora, std::unordered_map<int, int>& sute) {
     score_t score = {0, 0};
     auto base = hand;
     base[agari]++;
@@ -1136,7 +1136,8 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
         auto h = base;
         int count = 0;
         for (auto& [k, v] : dora) {
-            count += h[k] * v;
+            //不要牌はドラとしてカウントしない
+            count += (h[k] - sute[k]) * v;
         }
         if (count) {
             score.han += count;
