@@ -581,12 +581,19 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     // 一盃口
     {
         int count = 0;
+        bool is_open = false;
+        for (auto& [k, v] : mentsu) {
+            if (k & kOpen) {
+                is_open = true;
+                break;
+            }
+        }
         for (auto& [k, v] : mentsu) {
             if (k >= S_M1 && k <= S_S7 && v == 2) {
                 count++;
             }
         }
-        if (count == 1) {
+        if (count == 1 && !is_open) {
             score.han += 1;
             score.yaku.emplace(Ipeko);
         }
