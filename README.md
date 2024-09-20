@@ -10,9 +10,8 @@
 
 ```
 Argument0: shanten
-Argument1: 鳴いた手牌を除いた手牌
-Argument2: 鳴いた面子の数
-Argument3: 自分から見えている牌(手牌、河、副露、ドラ表示牌)
+Argument1: 手牌
+Argument2: 自分から見えている牌(手牌、河、副露、ドラ表示牌)
 
 Result: 向聴数,有効牌,不要牌
 ```
@@ -21,12 +20,12 @@ Result: 向聴数,有効牌,不要牌
 
 ```
 Argument0: shanten
-Argument1: 5m6m8m8m9m9m1p3p5p7p8p4s4s5s
-Argument2: 0
-Argument3: 5m6m8m8m9m9m1p3p5p7p8p4s4s5s
-
-Result: 3,5p5s3p1p8p6m9m7m9p6p4m2p4s4p6s3s8m5m7p,9m6m8p4s1p5p3p5s8m7p5m
+Argument1: 3m4m4m5m5m6m6m7m7m8m9m<1m2m3m>
+Argument2: 1m2m3m3m4m4m5m5m6m6m7m7m8m9m
+Result: 0,6m8m9m7m3m2m5m4m,6m4m3m7m9m
 ```
+
+なお、牌はソートされている必要はありません。
 
 #### 有効牌の取得方法
 
@@ -40,4 +39,35 @@ Result: 3,5p5s3p1p8p6m9m7m9p6p4m2p4s4p6s3s8m5m7p,9m6m8p4s1p5p3p5s8m7p5m
 3. 13枚で呼んで有効牌の取得
 
 のようにすると良いでしょう。
+
+### 現時点で成立している役を調べる
+
+```
+Argument0: yaku
+Argument1: 手牌(自摸を除く)
+Argument2: 自摸
+Argument3: 見えている牌
+Argument4: ドラ(ドラ表示牌ではない)
+Argument5: 場風
+Argument6: 自風
+
+Result: 翻,不要牌,成立している役(スラッシュ区切り)
+```
+
+向聴数を求めるのと違い、最大の翻になる組み合わせにおける不要牌のみが出力されます。
+なお、面前や立直などは手牌によらない役は含まれません。
+
+#### 例
+
+```
+Argument0: yaku
+Argument1: <1m2m3m>3m4m4m5m5m6m6m7m7m8m
+Argument2: 9m
+Argument3: 1m2m3m4m4m5m5m6m6m7m7m8m9m
+Argument4: 1m
+Argument5: 1z
+Argument6: 2z
+
+Result: 7,3m7m,Ikki/Chinitsu/Dora
+```
 
