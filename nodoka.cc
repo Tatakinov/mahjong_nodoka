@@ -581,8 +581,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     // 一盃口
     {
         int count = 0;
-        for (auto& [key, v] : mentsu) {
-            auto k = key & 0x7f; // 鳴いているかを無視
+        for (auto& [k, v] : mentsu) {
             if (k >= S_M1 && k <= S_S7 && v == 2) {
                 count++;
             }
@@ -665,13 +664,20 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     // 三色同順
     {
         bool established = false;
+        bool is_open = false;
+        for (auto& [k, v] : mentsu) {
+            if (k & kOpen) {
+                is_open = true;
+                break;
+            }
+        }
         for (int i = S_M1; i <= S_M7; i++) {
             if (mentsu[i] && mentsu[i + 11] && mentsu[i + 22]) {
                 established = true;
             }
         }
         if (established) {
-            score.han += 2;
+            score.han += 2 - is_open;
             score.yaku.emplace(Dojun);
         }
     }
