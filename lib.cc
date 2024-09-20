@@ -183,7 +183,7 @@ std::string __request(std::string request) {
                         "Ryuiso",
                         "Chinroto",
                         "Suanko",
-                        "Kokushimusou",
+                        "Kokushimuso",
                         "Churen",
                         "Sukantsu"
                     };
