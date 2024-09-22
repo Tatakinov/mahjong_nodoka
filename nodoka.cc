@@ -502,6 +502,15 @@ int calcShanten(int mentsu, int toitsu, int tatsu) {
     return shanten;
 }
 
+bool isOpen(const std::unordered_map<int, int>& mentsu) {
+    for (auto& [k, v] : mentsu) {
+        if (k & kOpen) {
+            return true;
+        }
+    }
+    return false;
+}
+
 score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_map<int, int> mentsu, int agari, int ba, int ji, std::unordered_map<int, int>& dora, std::unordered_map<int, int>& sute) {
     score_t score = {0, 0};
     auto base = hand;
@@ -510,13 +519,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     do {
         auto h = base;
         int count = 0;
-        bool is_open = false;
-        for (auto& [k, v] : mentsu) {
-            if (k & kOpen) {
-                is_open = true;
-                break;
-            }
-        }
+        bool is_open = isOpen(mentsu);
         for (auto& [k, v] : mentsu) {
             if (
                     (k >= S_M1 && k <= S_M7) ||
@@ -581,13 +584,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     // 一盃口
     {
         int count = 0;
-        bool is_open = false;
-        for (auto& [k, v] : mentsu) {
-            if (k & kOpen) {
-                is_open = true;
-                break;
-            }
-        }
+        bool is_open = isOpen(mentsu);
         for (auto& [k, v] : mentsu) {
             if (k >= S_M1 && k <= S_S7 && v == 2) {
                 count++;
@@ -671,13 +668,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     // 三色同順
     {
         bool established = false;
-        bool is_open = false;
-        for (auto& [k, v] : mentsu) {
-            if (k & kOpen) {
-                is_open = true;
-                break;
-            }
-        }
+        bool is_open = isOpen(mentsu);
         for (int i = S_M1; i <= S_M7; i++) {
             if (mentsu[i] && mentsu[i + 11] && mentsu[i + 22]) {
                 established = true;
@@ -711,13 +702,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     // 一気通貫
     {
         std::unordered_map<int, int> m;
-        bool is_open = false;
-        for (auto& [k, v] : mentsu) {
-            if (k & kOpen) {
-                is_open = true;
-                break;
-            }
-        }
+        bool is_open = isOpen(mentsu);
         for (auto& [key, v] : mentsu) {
             if (!v) {
                 continue;
@@ -755,15 +740,9 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     {
         auto h = base;
         int count = 0;
-        bool is_open = false;
+        bool is_open = isOpen(mentsu);
         bool has_ji = false;
         bool has_19 = false;
-        for (auto& [k, v] : mentsu) {
-            if (k & kOpen) {
-                is_open = true;
-                break;
-            }
-        }
         for (auto& [k, v] : h) {
             if (!v) {
                 continue;
@@ -822,13 +801,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     // 混一色
     {
         auto h = base;
-        bool is_open = false;
-        for (auto& [k, v] : mentsu) {
-            if (k & kOpen) {
-                is_open = true;
-                break;
-            }
-        }
+        bool is_open = isOpen(mentsu);
         std::unordered_set<int> kind;
         for (auto& [k, v] : h) {
             if (!v) {
@@ -856,13 +829,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     {
         auto h = base;
         int count = 0;
-        bool is_open = false;
-        for (auto& [k, v] : mentsu) {
-            if (k & kOpen) {
-                is_open = true;
-                break;
-            }
-        }
+        bool is_open = isOpen(mentsu);
         for (auto& [key, v] : mentsu) {
             auto k = key & 0x7f;
             if (!v) {
@@ -901,13 +868,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     // 二盃口
     {
         int count = 0;
-        bool is_open = false;
-        for (auto& [k, v] : mentsu) {
-            if (k & kOpen) {
-                is_open = true;
-                break;
-            }
-        }
+        bool is_open = isOpen(mentsu);
         for (auto& [k, v] : mentsu) {
             if (k >= S_M1 && k <= S_S7 && v == 2) {
                 count++;
@@ -921,13 +882,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     // 清一色
     {
         auto h = base;
-        bool is_open = false;
-        for (auto& [k, v] : mentsu) {
-            if (k & kOpen) {
-                is_open = true;
-                break;
-            }
-        }
+        bool is_open = isOpen(mentsu);
         std::unordered_set<int> kind;
         for (auto& [k, v] : h) {
             if (!v) {
@@ -1088,13 +1043,7 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     }
     // 九蓮宝燈
     {
-        bool is_open = false;
-        for (auto& [k, v] : mentsu) {
-            if (k & kOpen) {
-                is_open = true;
-                break;
-            }
-        }
+        bool is_open = isOpen(mentsu);
         for (int i = 0; i < 3; i++) {
             auto h = base;
             h[M1 + i * 11] -= 3;
