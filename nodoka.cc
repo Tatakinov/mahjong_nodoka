@@ -712,14 +712,17 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
     {
         std::unordered_map<int, int> m;
         bool is_open = false;
+        for (auto& [k, v] : mentsu) {
+            if (k & kOpen) {
+                is_open = true;
+                break;
+            }
+        }
         for (auto& [key, v] : mentsu) {
             if (!v) {
                 continue;
             }
             auto k = key & 0x7f;
-            if (k != key) {
-                is_open = true;
-            }
             m[k] += v;
         }
         if (
@@ -755,13 +758,18 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
         bool is_open = false;
         bool has_ji = false;
         bool has_19 = false;
+        for (auto& [k, v] : mentsu) {
+            if (k & kOpen) {
+                is_open = true;
+                break;
+            }
+        }
         for (auto& [k, v] : h) {
             if (!v) {
                 continue;
             }
             if (k >= Z1) {
                 has_ji = true;
-                break;
             }
             if (k == M1 || k == M9 || k == P1 || k == P9 ||
                     k == S1 || k == S9) {
@@ -772,9 +780,6 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
             auto k = key & 0x7f;
             if (!v) {
                 continue;
-            }
-            if (k != key) {
-                is_open = true;
             }
             if (k == S_M1 || k == S_M7 || k == S_P1 || k == S_P7 ||
                     k == S_S1 || k == S_S7
@@ -788,7 +793,6 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
                     k == K_P1 || k == K_P9 || k == K_S1 || k == K_S9 ||
                     k >= K_Z1
                ) {
-                h[k] -= 3;
                 count++;
             }
         }
@@ -853,13 +857,16 @@ score_t yaku(ShapeType type, std::unordered_map<int, int>& hand, std::unordered_
         auto h = base;
         int count = 0;
         bool is_open = false;
+        for (auto& [k, v] : mentsu) {
+            if (k & kOpen) {
+                is_open = true;
+                break;
+            }
+        }
         for (auto& [key, v] : mentsu) {
             auto k = key & 0x7f;
             if (!v) {
                 continue;
-            }
-            if (k != key) {
-                is_open = true;
             }
             if (k == S_M1 || k == S_M7 || k == S_P1 || k == S_P7 ||
                     k == S_S1 || k == S_S7
